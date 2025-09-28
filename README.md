@@ -8,6 +8,8 @@
 pip install -r requirements.txt
 
 ```
+---
+## Run
  ```bash
 powershell -ExecutionPolicy Bypass -File .\starter.ps1
 ```
