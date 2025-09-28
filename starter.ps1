@@ -19,7 +19,7 @@ if (Test-Path $mp3) {
         Write-Host "[warn] No audio backend found. Continuing without sound."
     }
 } else {
-    Write-Host "[info] No MP3 found at $mp3 — animation only."
+    Write-Host ("[info] No MP3 found at {0} - animation only." -f $mp3)
 }
 
 # --- Run animation ---
