@@ -1,0 +1,5 @@
+# Needed to make curses work on Windows terminals
+windows-curses; platform_system=="Windows"
+
+# Fallback audio support
+playsound==1.2.2
