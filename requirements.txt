@@ -1,5 +1,14 @@
-# Needed to make curses work on Windows terminals
-windows-curses; platform_system=="Windows"
+# Core (emoji-safe centering)
+wcwidth>=0.2.13
 
-# Fallback audio support
-playsound==1.2.2
+# Windows-only: needed for curses on Windows
+windows-curses>=2.3.3; sys_platform == "win32"
+
+# Python audio fallback (MP3) used by play_audio.py
+playsound>=1.2.2
+
+# --- optional extras (uncomment if you use them) ---
+# rich>=13.0.0            # pretty console output (not required)
+# pygame>=2.5.0           # alternative MP3 playback if you prefer pygame.mixer
+# pydub>=0.25.1           # another audio option (requires ffmpeg installed separately)
+
