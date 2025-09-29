@@ -14,3 +14,4 @@ pip install -r requirements.txt
 powershell -ExecutionPolicy Bypass -File .\starter.ps1
 ```
 ---
+<img width="3408" height="1694" alt="image" src="https://github.com/user-attachments/assets/d51fe750-1d92-482e-9b32-57ad2df678f9" />

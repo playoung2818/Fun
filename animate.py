@@ -7,8 +7,10 @@ import shutil
 import subprocess
 from wcwidth import wcswidth
 
+
 TITLE = "HAKUNA MATTATA"
-TAGLINE = "It means no worries… for the rest of your day\nHappy Tuesday!"
+TAGLINE = "It means no worries… for the rest of your day~\nIt's a problem-free… philosophy~\nHappy Tuesday!"
+
 TIMON_PUMBAA = [
     r"   (\_/)            (\____/)   ",
     r"   ( •_•)           ( •(oo)• ) ",
