@@ -5,7 +5,7 @@ wcwidth>=0.2.13
 windows-curses>=2.3.3; sys_platform == "win32"
 
 # Python audio fallback (MP3) used by play_audio.py
-playsound=1.2.2
+playsound==1.2.2
 
 # --- optional extras (uncomment if you use them) ---
 # rich>=13.0.0            # pretty console output (not required)
