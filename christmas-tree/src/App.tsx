@@ -509,6 +509,43 @@ export default function GrandTreeApp() {
   const [rotationSpeed, setRotationSpeed] = useState(0);
   const [aiStatus, setAiStatus] = useState("INITIALIZING...");
   const [debugMode, setDebugMode] = useState(false);
+  const [strudelState, setStrudelState] = useState<'idle' | 'copied' | 'error'>('idle');
+  
+  const strudelCode = `
+setcpm(8)
+
+let p1 =
+  note(" [e4 e4] e4  [e4 e4] e4  [e4 g4] c4 [[[~[d4 e4]]]] - ")
+  .sound("piano")
+  .room(0.4)
+
+let p2 =
+  note(" [f4 f4] f4  [f4 f4] e4*2 [e4 d4 d4] e4 d4 g4 - ")
+  .sound("piano")
+  .room(0.4)
+
+$: arrange(
+  [1, p1],
+  [1, p2],
+  [1, p1],
+  [1, p2]
+)
+`.trim();
+
+  const STRUDEL_LINK = 'https://strudel.cc/#c2V0Y3BtKDgpCgpsZXQgcDEgPQogIG5vdGUoIiBbZTQgZTRdIGU0ICBbZTQgZTRdIGU0ICBbZTQgZzRdIGM0IFtkNCBlNF0gLSAiKQogIC5zb3VuZCgicGlhbm8iKQogIC5yb29tKDAuNCkKCmxldCBwMiA9CiAgbm90ZSgiIFtmNCBmNF0gZjQgIFtmNCBmNF0gZTQgKjIgIGU0IGQ0KjIgIGU0IGQ0IGc0IC0gIikKICAuc291bmQoInBpYW5vIikKICAucm9vbSgwLjQpCgokOiBhcnJhbmdlKAogIFsxLCBwMV0sCiAgWzEsIHAyXSwKICBbMSwgcDFdLAogIFsxLCBwMl0KKQo%3D';
+
+  const openStrudel = async () => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(strudelCode);
+        setStrudelState('copied');
+      }
+    } catch (err) {
+        console.warn('Clipboard copy failed', err);
+        setStrudelState('error');
+    }
+    window.open(STRUDEL_LINK, '_blank', 'noopener');
+  };
 
   return (
     <div style={{ width: '100vw', height: '100vh', backgroundColor: '#000', position: 'relative', overflow: 'hidden' }}>
@@ -543,6 +580,16 @@ export default function GrandTreeApp() {
         <button onClick={() => setSceneState(s => s === 'CHAOS' ? 'FORMED' : 'CHAOS')} style={{ padding: '12px 30px', backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255, 215, 0, 0.5)', color: '#FFD700', fontFamily: 'serif', fontSize: '14px', fontWeight: 'bold', letterSpacing: '3px', textTransform: 'uppercase', cursor: 'pointer', backdropFilter: 'blur(4px)' }}>
            {sceneState === 'CHAOS' ? 'Assemble Tree' : 'Disperse'}
         </button>
+      </div>
+
+      {/* UI - Strudel */}
+      <div style={{ position: 'absolute', top: '20px', right: '40px', zIndex: 10, display: 'flex', gap: '10px', alignItems: 'center', background: 'rgba(0,0,0,0.5)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 215, 0, 0.3)', color: '#FFD700', fontFamily: 'sans-serif', backdropFilter: 'blur(6px)' }}>
+        <button id="playStrudel" onClick={openStrudel} style={{ padding: '10px 14px', backgroundColor: '#FFD700', border: '1px solid #FFD700', color: '#000', fontWeight: 'bold', cursor: 'pointer' }}>
+          Play in Strudel
+        </button>
+        <span style={{ fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase' }}>
+          {strudelState === 'copied' ? 'Code copied, opening strudel.cc' : strudelState === 'error' ? 'Clipboard blocked; opening strudel.cc' : 'Opens strudel.cc with this tune'}
+        </span>
       </div>
 
       {/* UI - AI Status */}

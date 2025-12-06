@@ -18,6 +18,11 @@
   button.launch{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,#ffd1e8,#ffe59f,#b6eff2);border:none;border-radius:999px;padding:14px 32px;font-weight:900;font-size:16px;color:#333;cursor:pointer;z-index:3;box-shadow:0 6px 20px rgba(0,0,0,.2);transition:transform .16s ease,box-shadow .16s ease}
   button.launch:hover{transform:translateX(-50%) scale(1.05);box-shadow:0 10px 26px rgba(0,0,0,.25)}
 
+  .music{position:fixed;right:16px;bottom:16px;z-index:3;display:flex;gap:8px;align-items:center;background:var(--glass);border:1px solid rgba(0,0,0,.08);padding:8px 10px;border-radius:14px;backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+  .music button{background:linear-gradient(135deg,#ffd1e8,#ffe59f,#b6eff2);border:none;border-radius:12px;padding:10px 14px;font-weight:900;font-size:13px;color:#333;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:transform .16s ease,box-shadow .16s ease}
+  .music button:hover{transform:scale(1.03);box-shadow:0 8px 20px rgba(0,0,0,.22)}
+  .music .kbd{border-radius:12px;border-color:rgba(0,0,0,.06)}
+
   .twinkles{position:fixed;inset:0;pointer-events:none;z-index:1}
   .twinkle{position:absolute;width:6px;height:6px;transform:translate(-50%,-50%);}
   .twinkle::before,.twinkle::after{content:"";position:absolute;left:50%;top:50%;width:6px;height:2px;transform:translate(-50%,-50%) rotate(45deg);background:linear-gradient(90deg,#0000,#cbd5ff,#0000);border-radius:2px;opacity:.6}
@@ -31,6 +36,10 @@
   <div class="note">Click or press Space to launch fireworks ✨</div>
   <button class="launch" id="launchBtn">🎇 Launch Firework</button>
   <div class="hud"><div class="kbd" id="stat">—</div></div>
+  <div class="music">
+    <button id="strudelBtn">🎹 Play Strudel</button>
+    <div class="kbd" id="strudelStat">Strudel: idle</div>
+  </div>
 
 <script>
 const canvas=document.getElementById('c');
@@ -103,6 +112,71 @@ btn.addEventListener('click',()=>spawnRocketTo(innerWidth*0.5,innerHeight*0.36))
 canvas.addEventListener('pointerdown',e=>{const r=canvas.getBoundingClientRect();spawnRocketTo(e.clientX-r.left,e.clientY-r.top);});
 window.addEventListener('keydown',e=>{if(e.code==='Space'){const cx=innerWidth*0.5,cy=innerHeight*0.36;for(let i=0;i<5;i++)spawnRocketTo(cx+rand(-160,160),cy+rand(-60,60));}if(e.key==='c'||e.key==='C'){pal=(pal+1)%palettes.length;}});
 setInterval(()=>{if(bursts.length+rockets.length<4){spawnRocketTo(rand(innerWidth*0.25,innerWidth*0.75),rand(innerHeight*0.25,innerHeight*0.5));}},2600);
+
+// Strudel setup
+const strudelBtn=document.getElementById('strudelBtn');
+const strudelStat=document.getElementById('strudelStat');
+const strudelState={module:null,playing:false,dispose:null,loading:false};
+const strudelCode=`setcpm(8)
+
+let p1 =
+  note(" [e4 e4] e4  [e4 e4] e4  [e4 g4] c4 [[[~[d4 e4]]]] - ")
+  .sound("piano")
+  .room(0.4)
+
+let p2 =
+  note(" [f4 f4] f4  [f4 f4] e4*2 [e4 d4 d4] e4 d4 g4 - ")
+  .sound("piano")
+  .room(0.4)
+
+$: arrange(
+  [1, p1],
+  [1, p2],
+  [1, p1],
+  [1, p2]
+)
+`;
+
+async function ensureStrudel(){
+  if(strudelState.module)return strudelState.module;
+  strudelState.loading=true;
+  strudelStat.textContent='Strudel: loading...';
+  const mod=await import('https://cdn.jsdelivr.net/npm/@strudel/web@0.13.3/dist/web.bundle.js');
+  strudelState.module=mod;
+  strudelState.loading=false;
+  return mod;
+}
+
+async function startStrudel(){
+  try{
+    strudelBtn.disabled=true;
+    const {evalCode,startAudio}=await ensureStrudel();
+    await startAudio();
+    const res=await evalCode(strudelCode);
+    strudelState.dispose=res?.dispose||null;
+    strudelState.playing=true;
+    strudelStat.textContent='Strudel: playing';
+    strudelBtn.textContent='⏹ Stop Strudel';
+  }catch(err){
+    console.error('Strudel failed',err);
+    strudelStat.textContent='Strudel: error (see console)';
+  }finally{
+    strudelBtn.disabled=false;
+  }
+}
+
+function stopStrudel(){
+  if(strudelState.dispose){try{strudelState.dispose();}catch(e){console.warn('Strudel dispose issue',e);}}
+  strudelState.dispose=null;
+  strudelState.playing=false;
+  strudelStat.textContent='Strudel: stopped';
+  strudelBtn.textContent='🎹 Play Strudel';
+}
+
+strudelBtn.addEventListener('click',()=>{
+  if(strudelState.playing){stopStrudel();}
+  else{startStrudel();}
+});
 </script>
 </body>
 </html>
