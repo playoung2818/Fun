@@ -4,8 +4,8 @@
 
 这个项目不仅仅是一棵树，它是一个承载记忆的交互式画廊。成百上千个粒子、璀璨的彩灯和悬浮的拍立得照片共同组成了一棵奢华的圣诞树。用户可以通过手势控制树的形态（聚合/散开）和视角旋转，体验电影级的视觉盛宴。
 
-![Project Preview](public/preview.png)
-*(注：建议在此处上传一张你的项目运行截图)*
+<img width="1005" height="708" alt="image" src="https://github.com/user-attachments/assets/0fecf3bf-83aa-4e69-8d6b-d46a877b9a16" />
+
 
 ## ✨ 核心特性
 
@@ -86,3 +86,7 @@
 ### 📄 License
 MIT License. Feel free to use and modify for your own holiday celebrations!
 ### Merry Christmas! 🎄✨
+
+MIT License. Feel free to use and modify for your own holiday celebrations!
+### Merry Christmas! 🎄✨
+
