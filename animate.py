@@ -11,11 +11,22 @@ from wcwidth import wcswidth
 TITLE = "HAKUNA MATTATA"
 TAGLINE = "It means no worries… for the rest of your day~\nIt's a problem-free… philosophy~\nHappy Tuesday!"
 
-TIMON_PUMBAA = [
-    r"   (\_/)            (\____/)   ",
-    r"   ( •_•)           ( •(oo)• ) ",
-    r"   /   🍃           (   (  )  )",
+
+POMPOMPURIN_FRAMES = [
+    [
+        "⢠⠋⠒⠙⡄⠀⣀⢴⠛⡦⣀⠀⠀⢠⠢⠔⡄",
+        "⠀⠑⣀⣊⠤⠯⣥⣄⣀⣠⣬⠵⣀⡈⠢⠔⠁",
+        "⣰⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠓⠦⣄",
+        "⣏⠀⢠⠟⠀⠛⠀⢠⣤⠀⠶⠀⠘⣇⠀⠀⣹",
+        "⠙⠒⣾⠀⠀⠀⠘⠚⠓⠚⠀⠀⠀⠙⡲⠚⠁",
+        "⠀⢀⡾⠀⣀⠔⠒⢞⣫⡷⠖⠢⡀⠀⢧⠀⠀",
+        "⠀⣼⠥⡀⢀⡀⣀⡜⠀⢣⣀⣀⠀⡴⠚⢦⠀",
+        "⢸⠁⠀⠙⡀⠀⠀⠙⠒⠋⠀⠀⠨⠀⠀⢸⠀",
+        "⠀⠳⣄⣠⠴⠤⠤⠤⠤⠤⠤⠤⠦⣤⡤⠋⠀",
+    ]
 ]
+
+
 
 CONFETTI_GLYPHS = list("*+o•··•o+*")
 
@@ -65,6 +76,7 @@ def main(stdscr):
             default_bg = -1
         except Exception:
             default_bg = 0
+
         base_colors = [
             curses.COLOR_RED,
             curses.COLOR_YELLOW,
@@ -90,12 +102,14 @@ def main(stdscr):
 
     maxy, maxx = stdscr.getmaxyx()
 
-    # Lion position & velocity
-    ly, lx = maxy // 2, center_x(maxx, TIMON_PUMBAA[0])
-    vy, vx = 1, 2
-
+    # Pompompurin position & velocity
     t = 0
     confetti = []
+
+    # start centered based on frame 0 width
+    first_frame = POMPOMPURIN_FRAMES[0]
+    ly, lx = maxy // 2, center_x(maxx, first_frame[0])
+    vy, vx = 1, 2
 
     while True:
         t += 1
@@ -105,11 +119,15 @@ def main(stdscr):
         # Title (rainbow)
         title_x = center_x(maxx, TITLE)
         for i, ch in enumerate(TITLE):
-            if has_color:
-                color_pair = curses.color_pair((i + (t // 2)) % len(colors) + 1)
-                stdscr.addstr(2, title_x + i, ch, color_pair | curses.A_BOLD)
-            else:
-                stdscr.addstr(2, title_x + i, ch, curses.A_BOLD)
+            try:
+                if has_color:
+                    # cycle color pairs
+                    pair = colors[(i + (t // 2)) % len(colors)]
+                    stdscr.addstr(2, title_x + i, ch, curses.color_pair(pair) | curses.A_BOLD)
+                else:
+                    stdscr.addstr(2, title_x + i, ch, curses.A_BOLD)
+            except curses.error:
+                pass
 
         # Tagline — center each line separately
         base_y = 4
@@ -119,24 +137,29 @@ def main(stdscr):
             except curses.error:
                 pass
 
-        # Update & draw bouncing lion
+        # Select animated frame
+        frame_idx = (t // 6) % len(POMPOMPURIN_FRAMES)
+        purin = POMPOMPURIN_FRAMES[frame_idx]
+        purin_h = len(purin)
+        purin_w = max(wcswidth(line) for line in purin)
+
+        # Update bounce position
         ly += vy
         lx += vx
 
-        lion_h = len(TIMON_PUMBAA)
-        lion_w = max(len(line) for line in TIMON_PUMBAA)
-        if ly <= 6 or ly + lion_h >= maxy - 1:
+        if ly <= 6 or ly + purin_h >= maxy - 1:
             vy = -vy
             ly += vy
-        if lx <= 0 or lx + lion_w >= maxx - 1:
+        if lx <= 0 or lx + purin_w >= maxx - 1:
             vx = -vx
             lx += vx
 
-        for i, line in enumerate(TIMON_PUMBAA):
+        # Draw Pompompurin
+        for i, line in enumerate(purin):
             y = ly + i
             if 0 <= y < maxy:
                 try:
-                    stdscr.addstr(y, max(0, lx), line[: maxx - lx])
+                    stdscr.addstr(y, max(0, lx), line[: max(0, maxx - lx)])
                 except curses.error:
                     pass
 
@@ -147,7 +170,7 @@ def main(stdscr):
                     random.randint(0, maxx - 1),
                     6,
                     random.choice(CONFETTI_GLYPHS),
-                    random.choice(range(1, len(colors) + 1)) if has_color else 0
+                    random.choice(colors) if (has_color and colors) else 0
                 ])
 
         # Update confetti (falling)
@@ -173,14 +196,12 @@ def main(stdscr):
             pass
 
         # Handle input
-        try:
-            ch = stdscr.getch()
-        except Exception:
-            ch = -1
+        ch = stdscr.getch()
         if ch in (ord('q'), ord('Q')):
             break
 
         time.sleep(0.06)
+
 
 
 if __name__ == "__main__":
